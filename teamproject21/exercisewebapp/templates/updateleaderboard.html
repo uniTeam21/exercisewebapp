@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block content %}
+    {% for user in all_users %}
+        <p>Name: {{ user.username }}</p>
+        {% for groups in user.groups %}
+            <p>Group: {{ groups.id }}</p>
+
+        {% endfor%}
+    {% endfor%}
+{% endblock content %}

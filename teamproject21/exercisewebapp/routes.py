@@ -3,30 +3,20 @@ from exercisewebapp import app, db, bcrypt
 from exercisewebapp.forms import RegistrationForm, LoginForm, GroupCreateForm, PostForm
 from exercisewebapp.models import User, Post, Group
 from flask_login import login_user, current_user, logout_user, login_required
+from sqlalchemy import desc
 
 
-posts = [
-    {
-        'author': 'David Webber',
-        'title': 'Group Video Post 1',
-        'content': 'First post content text info',
-        'date_posted': 'April 20, 2018',
-        'reps': 10
-    },
-    {
-        'author': 'John Cena',
-        'title': 'Group Video Post 2',
-        'content': 'Second post content text info',
-        'date_posted': 'April 21, 2018',
-        'reps': 5
-    }
-]
+
 
 
 @app.route("/")
-@app.route("/home")
+@app.route("/home", methods=['GET'])
 def home():
-    return render_template('homefeed.html', posts=posts)
+    data = db.session.query(Post, User).join(User).all()
+    #to show latest posts at the top
+    data.reverse()
+    #posts1 = Post.query.order_by(Post.date_posted).all()
+    return render_template('homefeed.html', posts=data)
 
 
 @app.route("/about")
@@ -35,17 +25,52 @@ def about():
 
 @app.route("/leaderboard",methods=['GET', 'POST'])
 @login_required
-def leaderboard():
+def post_leaderboard():
     if current_user.is_authenticated:
         form = PostForm()
         user = current_user.id
         if form.validate_on_submit():
-            post = Post(title=form.title.data, content=form.content.data(), reps=form.reps.data(), group_id=form.group_id.data())
+            post = Post(title=form.title.data, content=form.content.data, reps=int(form.reps.data), user_id=int(user),group_id=int(form.group_id.data))
+            #post = User(title=form.title.data, content=form.content.data, reps=int(form.reps.data), user_id=int(user), groups=Group(id =int(form.group_id.data)))
+            group = Group.query.get(form.group_id.data)
+            usergroup = User.query.get(user)#.groups.insert(group)
+            #usergroup.groups.append(group)
+            #print(usergroup.groups)
+            group.groups.append(usergroup)
+            #TODO: somehow get groups to be added/appended onto User on when posted
             db.session.add(post)
             db.session.commit()
             flash('Your post has been created', 'success')
             return redirect(url_for('home'))
     return render_template('leaderboard.html', title='Group Leaderboard',form = form)
+
+"""
+def leaderboardGroup(all_users):
+    users_id = []
+    for user in all_users:
+        users_id.append(user.id)
+        user_posts = []
+        user_groups = []
+        for post in user.posts:
+            user_posts.append(post)
+        for group in user.groups:
+            user_groups.append(group)"""
+
+
+#this function will get post information to leaderboards for each group
+#for each unique group, get posts with highest reps for each unique person
+#and sort highest to lowest
+@app.route("/updateleaderboard",methods=['GET'])
+@login_required
+def update_leaderboard():
+    if current_user.is_authenticated:
+        #user_posts = User.query.get(current_user).all()
+        all_users = User.query.all()
+        for user in all_users:
+            print(user)
+        #print(all_users)
+        return render_template('updateleaderboard.html',  all_users=all_users)
+    return render_template('homefeed.html')
 
 
 
