@@ -1,10 +1,33 @@
-{% extends "layout.html" %}
+{% extends "layout2.html" %}
 {% block content %}
-    {% for user in all_users %}
-        <p>Name: {{ user.username }}</p>
-        {% for groups in user.groups %}
-            <p>Group: {{ groups.id }}</p>
 
-        {% endfor%}
-    {% endfor%}
+
+{% if current_user.is_authenticated %}
+
+            <main role="main" class="container">
+            {% for table in tables %}
+            <div class="col-md-4">
+              <div class="content-section">
+
+                <h3>Group ID {{ ids[loop.index-1] }} Leaderboard</h3>
+                  <p class='text-muted'>{{exercise_titles[loop.index-1]}}
+
+                  {% for key,value in table.iterrows() %}
+
+                  <ul class="list-group">
+                    <li class="list-group-item list-group-item-light"><option value="{{ value['group_id'] }}">{{loop.index}}- {{ value['username']}} with {{value['max_rep'] }} reps</option></li>
+
+                  </ul>
+
+                  {% endfor %}
+
+                </p>
+                  <div class="form-group">
+                 <button class="btn btn-outline-info" onclick="location.href='/leaderboard'">Post To Leaderboard!</button>
+                  </div>
+              </div>
+            </div>
+            {% endfor %}
+                </main>
+{% endif %}
 {% endblock content %}

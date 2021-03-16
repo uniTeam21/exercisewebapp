@@ -4,6 +4,7 @@ from exercisewebapp.forms import RegistrationForm, LoginForm, GroupCreateForm, P
 from exercisewebapp.models import User, Post, Group
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import desc
+import pandas as pd
 
 
 
@@ -44,17 +45,70 @@ def post_leaderboard():
             return redirect(url_for('home'))
     return render_template('leaderboard.html', title='Group Leaderboard',form = form)
 
-"""
+def getValues(df_list):
+    for df in df_list:
+        df_group_id = df['group_id']
+        df_group_title = df['exercise_title']
+        df_group_id = df_group_id.unique()
+        df_group_title = df_group_title.unique()
+    return df_group_id[0], df_group_title[0]
+
+
 def leaderboardGroup(all_users):
-    users_id = []
-    for user in all_users:
-        users_id.append(user.id)
-        user_posts = []
-        user_groups = []
-        for post in user.posts:
-            user_posts.append(post)
-        for group in user.groups:
-            user_groups.append(group)"""
+
+    if current_user.is_authenticated:
+        df = pd.DataFrame(columns =['group_id', 'exercise_title','user_id','username', 'max_rep'])
+        user_group_ids = []
+
+        for user in all_users:
+            # get all current groups of a user
+            if user.id == current_user.id:
+                for group in user.groups:
+                    user_group_ids.append(group.id)
+
+        # for all users that are in the same groups as the current user
+        # create row to dataframe with max rep
+
+        for user in all_users:
+            for group in user.groups:
+                user_info = []
+                if group.id in user_group_ids:
+                    user_info.append(group.id)
+                    user_info.append(group.exercise_title)
+                    user_info.append(user.id)
+                    user_info.append(user.username)
+                    max_rep = 0
+                    for post in user.posts:
+                        if post.group_id == group.id:
+                            if post.reps > max_rep:
+                                max_rep = post.reps
+                    user_info.append(max_rep)
+                    #print(user_info)
+
+                    df_user_info = pd.DataFrame([user_info], columns=['group_id','exercise_title', 'user_id','username', 'max_rep'])
+
+                df= pd.concat([df, df_user_info])
+
+
+
+        #TODO: test function and query csv file to seperate out the distinct groups
+        # and sort based on max rep
+        groups = df.group_id.unique()
+        print(groups)
+        #df_sorted_collection = pd.DataFrame(columns =['group_id', 'user_id','username', 'max_rep'])
+        df_sorted_collection = []
+        for group in groups:
+            df_group = df.loc[df['group_id'] == group]
+            df_group.sort_values(by='max_rep', ascending=False)
+            #print(df_group)
+            #df_sorted_collection.append(df_group.to_html())
+            df_sorted_collection.append(df_group)
+        print(df_sorted_collection)
+        return df_sorted_collection, df, groups
+
+
+
+
 
 
 #this function will get post information to leaderboards for each group
@@ -65,11 +119,13 @@ def leaderboardGroup(all_users):
 def update_leaderboard():
     if current_user.is_authenticated:
         #user_posts = User.query.get(current_user).all()
+
         all_users = User.query.all()
-        for user in all_users:
-            print(user)
-        #print(all_users)
-        return render_template('updateleaderboard.html',  all_users=all_users)
+        df_html_list, df,groups = leaderboardGroup(all_users)
+        df_group_id_list = df['group_id'].unique()
+        df_exercise_title_list = df['exercise_title'].unique()
+
+        return render_template('updateleaderboard.html', tables=df_html_list, titles=df.columns.values, ids=df_group_id_list.tolist(), exercise_titles=df_exercise_title_list.tolist())
     return render_template('homefeed.html')
 
 
