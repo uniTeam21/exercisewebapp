@@ -38,7 +38,6 @@ def post_leaderboard():
             #usergroup.groups.append(group)
             #print(usergroup.groups)
             group.groups.append(usergroup)
-            #TODO: somehow get groups to be added/appended onto User on when posted
             db.session.add(post)
             db.session.commit()
             flash('Your post has been created', 'success')
@@ -57,14 +56,24 @@ def getValues(df_list):
 def leaderboardGroup(all_users):
 
     if current_user.is_authenticated:
+
         df = pd.DataFrame(columns =['group_id', 'exercise_title','user_id','username', 'max_rep'])
         user_group_ids = []
-
+        post_reps = []
         for user in all_users:
             # get all current groups of a user
             if user.id == current_user.id:
                 for group in user.groups:
                     user_group_ids.append(group.id)
+               #get all posts ordered by date for each group
+                    group_post_reps = []
+                    for post in user.posts:
+                        if post.group_id == group.id:
+                            group_post_reps.append(post.reps)
+                    post_reps.append(group_post_reps)
+
+        print(post_reps)
+
 
         # for all users that are in the same groups as the current user
         # create row to dataframe with max rep
@@ -94,20 +103,22 @@ def leaderboardGroup(all_users):
         #TODO: test function and query csv file to seperate out the distinct groups
         # and sort based on max rep
         groups = df.group_id.unique()
-        print(groups)
+        #print(groups)
         #df_sorted_collection = pd.DataFrame(columns =['group_id', 'user_id','username', 'max_rep'])
         df_sorted_collection = []
         for group in groups:
             df_group = df.loc[df['group_id'] == group]
-            df_group.sort_values(by='max_rep', ascending=False)
+            df_group =df_group.sort_values(by='max_rep', ascending=False)
             #print(df_group)
             #df_sorted_collection.append(df_group.to_html())
             df_sorted_collection.append(df_group)
-        print(df_sorted_collection)
-        return df_sorted_collection, df, groups
+        #print(df_sorted_collection)
+        return df_sorted_collection, df, groups, post_reps
 
 
 
+
+# def getReps(all_users):
 
 
 
@@ -120,12 +131,21 @@ def update_leaderboard():
     if current_user.is_authenticated:
         #user_posts = User.query.get(current_user).all()
 
-        all_users = User.query.all()
-        df_html_list, df,groups = leaderboardGroup(all_users)
-        df_group_id_list = df['group_id'].unique()
-        df_exercise_title_list = df['exercise_title'].unique()
+        try:
+            all_users = User.query.all()
+            df_html_list, df, groups, post_reps = leaderboardGroup(all_users)
 
-        return render_template('updateleaderboard.html', tables=df_html_list, titles=df.columns.values, ids=df_group_id_list.tolist(), exercise_titles=df_exercise_title_list.tolist())
+            df_group_id_list = df['group_id'].unique()
+
+            df_exercise_title_list = df['exercise_title'].unique()
+
+            return render_template('updateleaderboard.html', tables=df_html_list, titles=df.columns.values,
+                                   ids=df_group_id_list.tolist(), exercise_titles=df_exercise_title_list.tolist(),
+                                   post_reps=post_reps)
+        except:
+            flash('You are not in any groups, make a post to a group to join first!', 'Fail')
+            return redirect(url_for('home'))
+
     return render_template('homefeed.html')
 
 

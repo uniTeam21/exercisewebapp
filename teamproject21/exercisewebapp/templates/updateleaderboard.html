@@ -1,10 +1,17 @@
 {% extends "layout2.html" %}
 {% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<!--    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">-->
+    <title>Chart</title>
 
+<!--</head>-->
 
 {% if current_user.is_authenticated %}
 
-            <main role="main" class="container">
+
             {% for table in tables %}
             <div class="col-md-4">
               <div class="content-section">
@@ -22,12 +29,67 @@
                   {% endfor %}
 
                 </p>
+
+
+
+
+
                   <div class="form-group">
                  <button class="btn btn-outline-info" onclick="location.href='/leaderboard'">Post To Leaderboard!</button>
                   </div>
+
               </div>
             </div>
             {% endfor %}
-                </main>
+
+            {% for table in tables %}
+            <h3>Group {{ids[loop.index-1]}} Personal Progress Graph</h3>
+            <div class ="container">
+                <canvas id="myChart{{ ids[loop.index-1] }}"></canvas>
+            </div>
+
+
+
+                <script>
+
+
+
+                    let myChart{{ ids[loop.index-1] }} = document.getElementById('myChart{{ ids[loop.index-1] }}').getContext('2d');
+
+                    let projectChart{{ ids[loop.index-1] }} = new Chart(myChart{{ ids[loop.index-1] }},{
+                        type:'line',
+                    data:{
+<!--                   1 date posted-->
+
+
+
+                    labels:{{post_reps[loop.index-1]}},
+                    datasets:[{
+<!--                    name of person-->
+                    label:'reps',
+<!--                    ordered rep data-->
+                    data:{{post_reps[loop.index-1]}},
+<!--                    random colour generated-->
+                    backgroundColor:'green',
+                        borderWidth:1,
+                            borderColor:'#777'
+                    <!--backgroundColor:[]-->
+                   }]
+                   },
+                  options:{
+                     title:{
+                        display:true,
+                            text:'{{ exercise_titles[loop.index-1] }} Group {{ ids[loop.index-1]}} Chart',
+                  },
+                  legend:{
+                    position:'right'
+                  }
+                  }
+                 });
+                </script>
+        {% endfor %}
+
+
 {% endif %}
 {% endblock content %}
+
