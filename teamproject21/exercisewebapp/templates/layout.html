@@ -63,26 +63,26 @@
           {% block content %}{% endblock %}
         </div>
 
-          <! -- Leader board section needs to query from group database/ sort and display as list with name and number of reps? -->
-          {% if current_user.is_authenticated %}
-            <div class="col-md-4">
-              <div class="content-section">
-                <h3>Group Leaderboard</h3>
-                <p class='text-muted'>Group Description.
-                  <ul class="list-group">
-                    <li class="list-group-item list-group-item-light">1st</li>
-                    <li class="list-group-item list-group-item-light">2nd</li>
-                    <li class="list-group-item list-group-item-light">3rd</li>
-                    <li class="list-group-item list-group-item-light">4th</li>
-                  </ul>
+<!--          <! &#45;&#45; Leader board section needs to query from group database/ sort and display as list with name and number of reps? &ndash;&gt;-->
+<!--          {% if current_user.is_authenticated %}-->
+<!--            <div class="col-md-4">-->
+<!--              <div class="content-section">-->
+<!--                <h3>Group Leaderboard</h3>-->
+<!--                <p class='text-muted'>Group Description.-->
+<!--                  <ul class="list-group">-->
+<!--                    <li class="list-group-item list-group-item-light">1st</li>-->
+<!--                    <li class="list-group-item list-group-item-light">2nd</li>-->
+<!--                    <li class="list-group-item list-group-item-light">3rd</li>-->
+<!--                    <li class="list-group-item list-group-item-light">4th</li>-->
+<!--                  </ul>-->
 
-                </p>
-                  <div class="form-group">
-                 <button class="btn btn-outline-info" onclick="location.href='/leaderboard'">Post To Leaderboard!</button>
-                  </div>
-              </div>
-            </div>
-          {% endif %}
+<!--                </p>-->
+<!--                  <div class="form-group">-->
+<!--                 <button class="btn btn-outline-info" onclick="location.href='/leaderboard'">Post To Leaderboard!</button>-->
+<!--                  </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          {% endif %}-->
       </div>
     </main>
 

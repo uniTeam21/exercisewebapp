@@ -1,16 +1,41 @@
 {% extends "layout.html" %}
 {% block content %}
-    {% for post, user in posts %}
-        <article class="media content-section">
-          <div class="media-body">
-            <div class="article-metadata">
-              <a class="mr-2" href="#">{{ user.username }}</a>
-              <small class="text-muted">{{ post.date_posted }}</small>
-            </div>
-            <h2><a class="article-title" href="#">{{ post.title }}</a></h2>
-            <p class="article-content">{{ post.content }}</p>
-            <p class="article-content">{{ post.reps }}</p>
-          </div>
-        </article>
+    {% for post, user, postvote in posts %}
+        {% if postvote.decided == False %}
+            <article class="media content-section">
+              <div class="media-body">
+                <div class="article-metadata">
+                  <a class="mr-2" href="#">{{ user.username }}</a>
+                  <small class="text-muted">{{ post.date_posted }}</small>
+                </div>
+                <h2><a class="article-title" href="#">{{ post.title }}</a></h2>
+                <p class="article-content">{{ post.content }}</p>
+                <p class="article-content">{{ post.reps }}</p>
+                {% if not (current_user_id == user.id) %}
+
+
+                    <form method="post" action="" id="{{postvote.id}}">
+
+                    <div class="form-group" name="{{postvote.id}}" >
+                    {{ form.csrf_token() }}
+                        {{ form.upvote( class="btn btn-outline-info") }} <small>Upvotes = {{ postvote.upvote_number}}</small>
+                    {{ form.downvote( class="btn btn-outline-info") }} <small>Downvotes = {{ postvote.downvote_number}}</small>
+                    {{ form.myhiddenid(value=postvote.id ) }}
+                        <p>
+                            <small>It is {{postvote.decided}} that this post has been decided </small></p>
+
+
+
+                    </div>
+                    </form>
+
+
+                {% endif %}
+        {% endif %}
+
+              </div>
+
+            </article>
+
     {% endfor %}
 {% endblock content %}

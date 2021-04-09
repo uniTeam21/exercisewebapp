@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from exercisewebapp.models import User
 
@@ -48,3 +48,8 @@ class PostForm(FlaskForm):
     reps = IntegerField('Number of reps', validators=[DataRequired()])
     group_id = IntegerField('Group id', validators=[DataRequired()])
     submit = SubmitField('Make Post')
+
+class VoteForm(FlaskForm):
+    upvote = SubmitField('Upvote')
+    downvote = SubmitField('Downvote')
+    myhiddenid = HiddenField()

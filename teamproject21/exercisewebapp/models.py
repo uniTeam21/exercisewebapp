@@ -11,6 +11,11 @@ groupslink = db.Table('groupslink',
                   db.Column('group_id', db.Integer, db.ForeignKey('group.id'))
                   )
 
+usersVotes = db.Table('userVotes',
+                db.Column('user_id', db.Integer,db.ForeignKey('user.id')),
+                  db.Column('postvote_id', db.Integer, db.ForeignKey('postvote.id'))
+                      )
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -38,20 +43,29 @@ class Post(db.Model):
     reps = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=False)
-    #votes = db.relationship("PostVote", uselist=False, back_populates="post")
+    ##
+    votes = db.relationship("Postvote", uselist=False, back_populates="post")
 
     def __repr__(self):
         return f"Post( Post ID:{self.id}, Title:'{self.title}', Date posted:'{self.date_posted}', Reps:{self.reps}, Group ID:{self.group_id}, User ID:{self.user_id})\n"
+##
+class Postvote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=False)
+    post = db.relationship("Post", back_populates="votes")
+    upvote_number = db.Column(db.Integer, nullable=False)
+    downvote_number = db.Column(db.Integer, nullable=False)
+    total_votes = db.Column(db.Integer, nullable=False)
+    member_count = db.Column(db.Integer, nullable=False)
+    users_voted = db.relationship('User',
+                            secondary=usersVotes,
+                            backref='collections')
+    decided = db.Column(db.Boolean, nullable = False)
 
-# class PostVote(db.Model):
-#     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-#     post = db.relationship("Post", back_populates="votes")
-#     upvote_number = db.Column(db.Integer, ColumnDefault(0), nullable=False)
-#     downvote_number = db.Column(db.Integer,ColumnDefault(0), nullable=False)
-#     total_votes = db.Column(db.Integer, ColumnDefault(0), nullable=False)
-#     member_count = db.Column(db.Integer, ColumnDefault(0), nullable=False)
-#     def __repr__(self):
-#         return f"PostVote( Post ID:{self.post_id},Upvotes: {self.upvote_number}, downvotes:{self.downvote_number}, Total votes:{self.total_votes} )\n"
+    decision = db.Column(db.Boolean ,nullable = True)
+    def __repr__(self):
+        return f"Postvote( ID:{self.id}, Post ID:{self.post_id},Upvotes: {self.upvote_number}, downvotes:{self.downvote_number}, Total votes:{self.total_votes}, total members:{self.member_count}, decided:{self.decided}, decision:{self.decision})\n"
 
 
 

@@ -2,6 +2,23 @@
 {% block content %}
 <! -- Leader board section needs to query from group database/ sort and display as list with name and number of reps? -->
           {% if current_user.is_authenticated %}
+            {% if current_user_groups_list is defined and current_user_groups_list %}
+                <small>You are currently in groups:</small>
+                <table style="width:100%">
+                      <tr>
+                        <th>Group ID</th>
+                        <th>Group Exercise</th>
+                      </tr>
+                {% for id, title in current_user_groups_list %}
+                      <tr>
+                        <td>{{id}}</td>
+                        <td>{{title}}</td>
+                      </tr>
+                {% endfor%}
+                    </table>
+            {% else%}
+                <small>You are in no groups currently, create a group or post to an existing group to join</small>
+            {% endif %}
           <div class="content-section">
         <form method="POST" action="">
             {{ form.hidden_tag() }}

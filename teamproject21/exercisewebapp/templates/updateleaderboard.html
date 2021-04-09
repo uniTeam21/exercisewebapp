@@ -11,6 +11,21 @@
 
 {% if current_user.is_authenticated %}
 
+            <h2>Your Groups</h2>
+
+
+            <table style="width:100%">
+                      <tr>
+                        <th>Group ID</th>
+                        <th>Group Exercise</th>
+                      </tr>
+                {% for id, title in current_user_list %}
+                      <tr>
+                        <td>{{id}}</td>
+                        <td>{{title}}</td>
+                      </tr>
+                {% endfor%}
+                    </table>
 
             {% for table in tables %}
             <div class="col-md-4">
