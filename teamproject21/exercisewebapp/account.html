@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>{{ current_user.username }}'s Account</h1>
+<!--Table Style-->
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+
+<body>
+
+<h2>Your Data</h2>
+
+<table>
+  <tr>
+    <th>Exercise</th>
+    <th>Total Reps</th>
+  </tr>
+  <tr>
+    <td>Push-Ups</td>
+    <td>120</td>
+
+  </tr>
+  <tr>
+    <td>Pull-Ups</td>
+    <td>13</td>
+  </tr>
+  <tr>
+    <td>Sit-Ups</td>
+    <td>366</td>
+  </tr>
+</table>
+
+
+<!--#################PERSONAL GRAPH#######################-->
+<h3>Personal Progress Graph</h3>
+    <div class ="container">
+        <canvas id="Personal Graph"></canvas>
+    </div>
+
+
+
+
+
+{% endblock content %}
