@@ -260,6 +260,16 @@ def get_current_user_groups():
     zipped= zip(current_user_groups_id_list, current_user_groups_title_list)
     return list(zipped)
 
+
+#this gets the number of reps when a user creates a post
+def get_current_user_total_reps():
+    current_user_groups_id_list = []
+    current_user_groups_title_list = []
+    numberTotal = []
+    for post in current_user.posts:
+        numberTotal.append(post.post_reps)
+    return numberTotal
+
 #this function will get post information to leaderboards for each group
 #for each unique group, get posts with highest reps for each unique person
 #and sort highest to lowest
