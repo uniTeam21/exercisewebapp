@@ -263,12 +263,10 @@ def get_current_user_groups():
 
 #this gets the number of reps when a user creates a post
 def get_current_user_total_reps():
-    current_user_groups_id_list = []
-    current_user_groups_title_list = []
-    numberTotal = []
+    total = 0
     for post in current_user.posts:
-        numberTotal.append(post.post_reps)
-    return numberTotal
+        total += post.reps
+    return total
 
 #this function will get post information to leaderboards for each group
 #for each unique group, get posts with highest reps for each unique person
@@ -377,7 +375,10 @@ def logout():
 @app.route("/account")
 @login_required
 def account():
-    return render_template('account.html', title='Account')
+    reps = 0
+    reps = get_current_user_total_reps()
+    return render_template('account.html', title='Account', reps=reps)
+    # return render_template('account.html', title='Account')
 
 @app.route("/group", methods=['GET', 'POST'])
 @login_required
