@@ -1,9 +1,46 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>{{ current_user.username }}</h1>
-    <article class="media content-section">
-          <div class="media-body">
-              <p>Test</p>
-          </div>
-    </article>
+    <!--Table Style-->
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+
+<body>
+
+<h2>Your Data</h2>
+
+<table>
+  <tr>
+    <th>Exercise</th>
+    <th>Total Reps</th>
+  </tr>
+  <tr>
+    <td>Push-Ups</td>
+    <td>{{reps}}</td>
+
+  </tr>
+  <tr>
+    <td>Pull-Ups</td>
+    <td>13</td>
+  </tr>
+  <tr>
+    <td>Sit-Ups</td>
+    <td>366</td>
+  </tr>
+</table>
 {% endblock content %}
