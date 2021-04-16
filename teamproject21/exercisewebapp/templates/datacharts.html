@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+{% for plot in plots %}
+    <article class="media content-section">
+                  <div class="media-body">
+    <div class="chart" id="linegraph{{loop.index-1}}">
+                    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+        <div class="chart" id="linegraph{{loop.index-1}}">
+        <script>
+            var graphs = {{plot | safe}};
+            Plotly.plot('linegraph{{loop.index-1}}',graphs,{});
+        </script>
+        </div>
+
+                </div>
+                  </div>
+    </article>
+{% endfor%}
+{% endblock content %}
+

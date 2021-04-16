@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from exercisewebapp.models import User
@@ -46,6 +47,7 @@ class PostForm(FlaskForm):
                                 validators=[DataRequired(), Length(min=2, max=20)])
     content = TextAreaField('Description', validators=[DataRequired(), Length(min=10, max=250)])
     reps = IntegerField('Number of reps', validators=[DataRequired()])
+    video = FileField('Video (.mp4)', validators=[FileRequired(), FileAllowed(['mp4'], 'Wrong format, you can only upload .mp4 files!')])
     group_id = IntegerField('Group id', validators=[DataRequired()])
     submit = SubmitField('Make Post')
 
