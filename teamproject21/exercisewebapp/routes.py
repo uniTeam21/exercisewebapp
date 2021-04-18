@@ -268,6 +268,19 @@ def get_current_user_total_reps():
         total += post.reps
     return total
 
+#get total post number for user
+def get_current_user_total_posts():
+    total = 0
+    for post in current_user.posts:
+        total += 1
+    return total
+
+def get_user_days_active():
+    days = 0
+    for post in current_user.posts:
+        days = post.date_posted
+    return days
+
 #this function will get post information to leaderboards for each group
 #for each unique group, get posts with highest reps for each unique person
 #and sort highest to lowest
@@ -376,8 +389,24 @@ def logout():
 @login_required
 def account():
     reps = 0
+    posts = 0
+    # list all groups the current user is in #returns a list I believe
+    current_user_groups_list = get_current_user_groups()
+    groups = 0
+
+    for id, title in current_user_groups_list:
+        groups = id
+
+
+
+    #get user total reps
     reps = get_current_user_total_reps()
-    return render_template('account.html', title='Account', reps=reps)
+    # get user total posts
+    posts = get_current_user_total_posts()
+
+    activity = get_user_days_active()
+
+    return render_template('account.html', title='Account', reps=reps, posts=posts, groups=groups, activity=activity)
     # return render_template('account.html', title='Account')
 
 @app.route("/group", methods=['GET', 'POST'])
