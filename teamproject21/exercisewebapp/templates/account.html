@@ -22,7 +22,7 @@ tr:nth-child(even) {
 
 <body>
 
-<h2>Your Data</h2>
+<h2>Your Exercise Data</h2>
 
 <table>
   <tr>
@@ -41,6 +41,27 @@ tr:nth-child(even) {
   <tr>
     <td>Sit-Ups</td>
     <td>366</td>
+  </tr>
+</table>
+
+<h2>Your General Data</h2>
+
+<table>
+  <tr>
+    <th>Info</th>
+    <th>Value</th>
+  </tr>
+  <tr>
+    <td>User Posts</td>
+    <td>{{posts}}</td>
+  </tr>
+  <tr>
+    <td>Last Day Active</td>
+    <td>{{activity}}</td>
+  </tr>
+  <tr>
+    <td>Group ID</td>
+    <td>{{groups}}</td>
   </tr>
 </table>
 {% endblock content %}
