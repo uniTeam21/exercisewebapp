@@ -26,6 +26,9 @@
                       </tr>
                 {% endfor%}
                     </table>
+            <div class="chart">
+                     <button class="btn btn-outline-info" onclick="location.href='/datacharts'">Group Progress Graph</button>
+                     </div>
 
             {% for table in tables %}
             <div class="col-md-4">
@@ -103,9 +106,7 @@
                  });
                 </script>
         {% endfor %}
-                     <div class="chart">
-                     <button class="btn btn-outline-info" onclick="location.href='/datacharts'">Group Progress Graph</button>
-                     </div>
+
 
 {% endif %}
 {% endblock content %}

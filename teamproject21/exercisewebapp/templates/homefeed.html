@@ -1,7 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
+    {% set var = namespace(are_there_posts=False) %}
     {% for post, user, postvote in posts %}
         {% if postvote.decided == False %}
+            {% set var.are_there_posts = True %}
             <article class="media content-section">
               <div class="media-body">
                 <div class="article-metadata">
@@ -45,4 +47,9 @@
             </article>
 
     {% endfor %}
+    {% if current_user.is_authenticated %}
+        {% if not var.are_there_posts %}
+            <p>There are no posts to see yet!</p>
+        {% endif %}
+    {% endif %}
 {% endblock content %}

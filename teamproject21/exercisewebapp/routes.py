@@ -1,3 +1,5 @@
+import os
+
 from flask import render_template, url_for, flash, redirect, request, session
 from exercisewebapp import app, db, bcrypt
 from exercisewebapp.forms import RegistrationForm, LoginForm, GroupCreateForm, PostForm, VoteForm
@@ -5,13 +7,21 @@ from exercisewebapp.models import User, Post, Group, Postvote
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import desc
 import pandas as pd
+from werkzeug.utils import secure_filename
+from werkzeug.datastructures import CombinedMultiDict
+from datetime import date
+
+import plotly
+import plotly.graph_objs as go
+import numpy as np
+import json
 
 
 ##TODO: create seperate file to store non route functions and import them in
 ##TODO: Leaderboard duplicates value if two posts with same number of reps exists (FIX IT)
 ##TODO: maybe change home to be like first in first out post, so one post at a time people have to vote to see the next
 ##TODO: put current users groups in the side bar on post to leaderboard and my groups
-
+##TODO:rename /links to be more relevant
 
 
 
@@ -21,7 +31,9 @@ def home():
     if current_user.is_authenticated:
         ##TODO:user this for my posts page --  data = db.session.query(Post, User, Postvote).join(User).join(Postvote).filter(User.id == current_user.id).all()
         groups = []
-        print(Post.query.all())
+        all_p = Post.query.all()
+        df = convert_posts_2_df(all_p)
+        print(df)
         user = db.session.query(User).filter(User.id == current_user.id).one()
         for group in user.groups:
             groups.append(group.id)
@@ -105,16 +117,32 @@ def getMemberCount(group_id):
 
 
 
-@app.route("/leaderboard",methods=['GET', 'POST'])
+@app.route("/createpost",methods=['GET', 'POST'])
 @login_required
 def post_leaderboard():
     if current_user.is_authenticated:
-        form = PostForm()
+        form = PostForm(CombinedMultiDict((request.files, request.form)))
         user = current_user.id
         # list all groups the current user is in
-        current_user_groups_list = get_current_user_groups()
+        current_user_groups_list = get_current_user_groups_with_title()
+
         if form.validate_on_submit():
-            post = Post(title=form.title.data, content=form.content.data, reps=int(form.reps.data), user_id=int(user),group_id=int(form.group_id.data))
+            f= form.video.data
+
+            uploads_dir = os.path.join(
+                os.path.dirname(app.instance_path), 'exercisewebapp/static/uploads'
+            )
+            fname = str(current_user.id)+'_'+str(date.today())+'_'+f.filename
+            filename= secure_filename(fname)
+
+            f.save(os.path.join(uploads_dir, filename))
+            #print(f.filename)
+
+            #print(filename)
+
+            #f.save(os.path.join(uploads_dir, filename))
+
+            post = Post(title=form.title.data, content=form.content.data, reps=int(form.reps.data), video=fname ,user_id=int(user),group_id=int(form.group_id.data))
 
             group = Group.query.get(form.group_id.data)
             usergroup = User.query.get(user)
@@ -138,8 +166,8 @@ def post_leaderboard():
             flash('Your post has been created', 'success')
 
             return redirect(url_for('home'))
-        return render_template('leaderboard.html', title='Group Leaderboard',form = form, current_user_groups_list=current_user_groups_list)
-    return render_template('leaderboard.html', title='Group Leaderboard',form = form)
+        return render_template('createpost.html', title='Group Leaderboard',form = form, current_user_groups_list=current_user_groups_list)
+    return render_template('createpost.html', title='Group Leaderboard',form = form)
 
 def getValues(df_list):
     for df in df_list:
@@ -185,8 +213,9 @@ def leaderboardGroup(all_users, accepted_posts):
 
                         if post.group_id == group.id:
                             if post.id in accepted_posts:
-                                print(f'post id: {post.id}, user id: {post.user_id}')
+                                print(f'post id: {post.id}, user id: {post.user_id}, {accepted_posts}')
                     ##
+                                user_info = []
 
                                 user_info.append(group.id)
                                 user_info.append(group.exercise_title)
@@ -200,10 +229,11 @@ def leaderboardGroup(all_users, accepted_posts):
                                             max_rep = post.reps
                                 user_info.append(max_rep)
                                 #print(user_info)
-
+                                print(user_info)
                                 df_user_info = pd.DataFrame([user_info], columns=['group_id','exercise_title', 'user_id','username', 'max_rep'])
-
+                                print(df_user_info)
                 df= pd.concat([df, df_user_info])
+
 
         ##
         df = df.drop_duplicates(subset=None, keep='first', inplace=False)
@@ -250,8 +280,8 @@ def processVotes(all_postvotes):
     #return list of all post ids that have been accepted to be posted leaderboard
     return decided_post_ids
 
-def get_current_user_groups():
-    # list all groups the current user is in
+def get_current_user_groups_with_title():
+    # list all groups the current user is in with title
     current_user_groups_id_list = []
     current_user_groups_title_list = []
     for group in current_user.groups:
@@ -261,25 +291,6 @@ def get_current_user_groups():
     return list(zipped)
 
 
-#this gets the number of reps when a user creates a post
-def get_current_user_total_reps():
-    total = 0
-    for post in current_user.posts:
-        total += post.reps
-    return total
-
-#get total post number for user
-def get_current_user_total_posts():
-    total = 0
-    for post in current_user.posts:
-        total += 1
-    return total
-
-def get_user_days_active():
-    days = 0
-    for post in current_user.posts:
-        days = post.date_posted
-    return days
 
 #this function will get post information to leaderboards for each group
 #for each unique group, get posts with highest reps for each unique person
@@ -290,7 +301,7 @@ def update_leaderboard():
     if current_user.is_authenticated:
 
         #list all groups the current user is in
-        current_user_groups_list = get_current_user_groups()
+        current_user_groups_list = get_current_user_groups_with_title()
 
         all_postvotes = Postvote.query.all()
         #list of accepted post ids
@@ -306,7 +317,9 @@ def update_leaderboard():
                 df_group_id_list = df['group_id'].unique()
 
                 df_exercise_title_list = df['exercise_title'].unique()
+
                 print(current_user_groups_list)
+
                 return render_template('updateleaderboard.html', tables=df_html_list, titles=df.columns.values,
                                        ids=df_group_id_list.tolist(), exercise_titles=df_exercise_title_list.tolist(),
                                        post_reps=post_reps, current_user_list = current_user_groups_list)
@@ -325,22 +338,100 @@ def update_leaderboard():
 
     return render_template('homefeed.html')
 
+##louis T
+def create_plot(df):
+    grouped_user_ids = df.groupby(df.user_id)
+    # data = [
+    #
+    #
+    #     go.Line(
+    #         x=df['date_posted'], # assign x as the dataframe column 'x'
+    #         y=df['reps']
+    #     ),
+    #     go.Line(
+    #         x=df['date_posted'],  # assign x as the dataframe column 'x'
+    #         y=df['reps']
+    #     )
+    #
+    # ]
+    data = []
+    unique_users = df['user_id'].unique()
+    for user in unique_users:
+        df_inloop=grouped_user_ids.get_group(user)
+        name = User.query.get(user)
+        data.append(go.Line(name =f'user_id={user}, name ={name.username}' ,x=df_inloop['date_posted'],y=df_inloop['reps']))
 
-# def groupProgress(all_posts):
-#     if current_user.is_authenticated:
-#         df_main= pd.DataFrame(columns =['post_id','group_id','user_id','date_posted', 'reps'])
-#         post_info = []
-#         for post in all_posts:
-#             #puts info into list format
-#             post_info.append(post.id)
-#             post_info.append(post.group_id)
-#             post_info.append(post.user_id)
-#             post_info.append(post.date_posted)
-#             post_info.append(post.reps)
-#
-#             df_inloop = pd.DataFrame([post_info], columns=['post_id', 'group_id', 'user_id', 'date_posted', 'reps'])
-#             df_main = pd.concat([df_main, df_inloop])
-#         print(df_main)
+
+
+    graphJSON = json.dumps(data, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return graphJSON
+
+
+##louis T
+def get_current_user_groups():
+    # list all groups the current user is in
+    current_user_groups_id_list = []
+
+    for group in current_user.groups:
+        current_user_groups_id_list.append(group.id)
+
+    return current_user_groups_id_list
+
+
+
+
+##louis T
+def convert_posts_2_df(all_posts):
+    #print(all_posts)
+    df_main = pd.DataFrame(columns=['post_id', 'group_id', 'user_id', 'date_posted', 'reps'])
+    # post_info = []
+    current_users_groups = get_current_user_groups()
+    for post in all_posts:
+        #print(post)
+        post_info = []
+        if post.group_id in current_users_groups:
+
+            # puts info into list format
+            post_info.append(post.id)
+            post_info.append(post.group_id)
+            post_info.append(post.user_id)
+            post_info.append(post.date_posted)
+            post_info.append(post.reps)
+            df_inloop = pd.DataFrame([post_info],
+                                     columns=['post_id', 'group_id', 'user_id', 'date_posted', 'reps'])
+            df_main = pd.concat([df_main, df_inloop])
+
+    unique_group_ids = df_main['group_id'].unique()
+    print(unique_group_ids)
+    return df_main
+
+@app.route("/datacharts", methods=['GET', 'POST'])
+def data_charts():
+    if current_user.is_authenticated:
+        current_users_groups = get_current_user_groups()
+        plots = []
+        all_p = Post.query.all()
+        all_p_decided= []
+        for p in all_p:
+            if p.votes.decided == True and p.votes.decision == True:
+                all_p_decided.append(p)
+        df = convert_posts_2_df(all_p_decided)
+        #plot = create_plot(df)
+        df_groups = df['group_id'].unique()
+        grouped_group = df.groupby(df.group_id)
+        for group in df_groups:
+            plots.append(create_plot(grouped_group.get_group(group)))
+
+
+        #plots.append(create_plot(df))
+        #print(plot)
+        return render_template('datacharts.html', plots=plots)
+    return redirect(url_for('home'))
+
+
+
+
 
 
 
@@ -384,6 +475,25 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
+#this gets the number of reps when a user creates a post
+def get_current_user_total_reps():
+    total = 0
+    for post in current_user.posts:
+        total += post.reps
+    return total
+
+#get total post number for user
+def get_current_user_total_posts():
+    total = 0
+    for post in current_user.posts:
+        total += 1
+    return total
+
+def get_user_days_active():
+    days = 0
+    for post in current_user.posts:
+        days = post.date_posted
+    return days
 
 @app.route("/account")
 @login_required
@@ -394,7 +504,7 @@ def account():
     current_user_groups_list = get_current_user_groups()
     groups = 0
 
-    for id, title in current_user_groups_list:
+    for id in current_user_groups_list:
         groups = id
 
 
