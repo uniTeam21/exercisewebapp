@@ -17,15 +17,9 @@ import numpy as np
 import json
 
 
-##TODO: create seperate file to store non route functions and import them in
-##TODO: Leaderboard duplicates value if two posts with same number of reps exists (FIX IT)
-##TODO: maybe change home to be like first in first out post, so one post at a time people have to vote to see the next
-##TODO: put current users groups in the side bar on post to leaderboard and my groups
-##TODO: rename /links to be more relevant
+#Home route function
 
-
-
-# @app.route("/")
+@app.route("/")
 @app.route("/home", methods=['GET', 'POST'])
 def home():
     if current_user.is_authenticated:
@@ -98,14 +92,14 @@ def home():
 
 
 
-
+#About route function
 
 @app.route("/about")
 def about():
     return render_template('about.html', title='About')
 
 
-
+#Function to get total number of members of a group
 def getMemberCount(group_id):
     all_users = User.query.all()
     membercount = 0
@@ -116,7 +110,7 @@ def getMemberCount(group_id):
     return membercount
 
 
-
+#function to create a post
 @app.route("/createpost",methods=['GET', 'POST'])
 @login_required
 def post_leaderboard():
@@ -169,6 +163,7 @@ def post_leaderboard():
         return render_template('createpost.html', title='Group Leaderboard',form = form, current_user_groups_list=current_user_groups_list)
     return render_template('createpost.html', title='Group Leaderboard',form = form)
 
+#gets values of a df list
 def getValues(df_list):
     for df in df_list:
         df_group_id = df['group_id']
@@ -177,7 +172,7 @@ def getValues(df_list):
         df_group_title = df_group_title.unique()
     return df_group_id[0], df_group_title[0]
 
-
+#creates leaderboard for each group
 def leaderboardGroup(all_users, accepted_posts):
 
     if current_user.is_authenticated:
@@ -254,7 +249,7 @@ def leaderboardGroup(all_users, accepted_posts):
 
 
 
-
+#processes votes on posts
 def processVotes(all_postvotes):
     #process voting decisions
 
@@ -283,6 +278,7 @@ def processVotes(all_postvotes):
     #return list of all post ids that have been accepted to be posted leaderboard
     return decided_post_ids
 
+#gets current users groups and group title
 def get_current_user_groups_with_title():
     # list all groups the current user is in with title
     current_user_groups_id_list = []
@@ -343,7 +339,7 @@ def update_leaderboard():
 
     return render_template('homefeed.html')
 
-##louis T
+#create plot from df
 def create_plot(df):
     grouped_user_ids = df.groupby(df.user_id)
     # data = [
@@ -373,7 +369,7 @@ def create_plot(df):
     return graphJSON
 
 
-##louis T
+#gets current users groups
 def get_current_user_groups():
     # list all groups the current user is in
     current_user_groups_id_list = []
@@ -386,7 +382,7 @@ def get_current_user_groups():
 
 
 
-##louis T
+#converts posts to a pandas dataframe
 def convert_posts_2_df(all_posts):
     #print(all_posts)
     df_main = pd.DataFrame(columns=['post_id', 'group_id', 'user_id', 'date_posted', 'reps'])
@@ -411,6 +407,7 @@ def convert_posts_2_df(all_posts):
     print(unique_group_ids)
     return df_main
 
+#route function for datacharts
 @app.route("/datacharts", methods=['GET', 'POST'])
 def data_charts():
     if current_user.is_authenticated:
@@ -443,7 +440,7 @@ def data_charts():
 
 
 
-
+#route function for registering
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -475,10 +472,12 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 
+#route function for logging out
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
 
 #this gets the number of reps when a user creates a post
 def get_current_user_total_reps():
@@ -493,13 +492,14 @@ def get_current_user_total_posts():
     for post in current_user.posts:
         total += 1
     return total
-
+#this gets active days from current user
 def get_user_days_active():
     days = 0
     for post in current_user.posts:
         days = post.date_posted
     return days
 
+#route function for account
 @app.route("/account")
 @login_required
 def account():
@@ -524,6 +524,7 @@ def account():
     return render_template('account.html', title='Account', reps=reps, posts=posts, groups=groups, activity=activity)
     # return render_template('account.html', title='Account')
 
+#route function for creating a group
 @app.route("/group", methods=['GET', 'POST'])
 @login_required
 def creategroup():
