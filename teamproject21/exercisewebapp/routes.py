@@ -21,7 +21,7 @@ import json
 ##TODO: Leaderboard duplicates value if two posts with same number of reps exists (FIX IT)
 ##TODO: maybe change home to be like first in first out post, so one post at a time people have to vote to see the next
 ##TODO: put current users groups in the side bar on post to leaderboard and my groups
-##TODO:rename /links to be more relevant
+##TODO: rename /links to be more relevant
 
 
 
@@ -196,6 +196,7 @@ def leaderboardGroup(all_users, accepted_posts):
                         if post.group_id == group.id:
                             group_post_reps.append(post.reps)
                     post_reps.append(group_post_reps)
+        #print(user_group_ids)
 
 
 
@@ -205,7 +206,8 @@ def leaderboardGroup(all_users, accepted_posts):
 
         for user in all_users:
             for group in user.groups:
-                user_info = []
+                df_user_info = pd.DataFrame(columns =['group_id', 'exercise_title','user_id','username', 'max_rep'])
+
                 if group.id in user_group_ids:
 
                     ##
@@ -233,6 +235,7 @@ def leaderboardGroup(all_users, accepted_posts):
                                 df_user_info = pd.DataFrame([user_info], columns=['group_id','exercise_title', 'user_id','username', 'max_rep'])
                                 print(df_user_info)
                 df= pd.concat([df, df_user_info])
+                #print(df)
 
 
         ##
@@ -304,8 +307,10 @@ def update_leaderboard():
         current_user_groups_list = get_current_user_groups_with_title()
 
         all_postvotes = Postvote.query.all()
+
         #list of accepted post ids
         accepted_posts = processVotes(all_postvotes)
+
         if current_user_groups_list:
 
             try:
@@ -313,7 +318,7 @@ def update_leaderboard():
                 all_users = User.query.all()
 
                 df_html_list, df, groups, post_reps = leaderboardGroup(all_users, accepted_posts)
-
+                print('test')
                 df_group_id_list = df['group_id'].unique()
 
                 df_exercise_title_list = df['exercise_title'].unique()
