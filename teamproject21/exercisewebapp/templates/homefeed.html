@@ -11,6 +11,7 @@
                   <small class="text-muted">{{ post.date_posted }}</small>
                 </div>
                 <h2><a class="article-title" href="#">{{ post.title }}</a></h2>
+                  <p class="article-content">Post made for Group ID: {{post.group_id}} </p>
                   <video width="320" height="240" controls>
 
 <!--                change this if deployed on real server, but works for development-->
@@ -19,7 +20,7 @@
                 Your browser does not support the video tag.
                 </video>
                 <p class="article-content">{{ post.content }}</p>
-                <p class="article-content">{{ post.reps }}</p>
+                <p class="article-content">Reps claimed: {{ post.reps }}</p>
                 {% if not (current_user_id == user.id) %}
 
 
