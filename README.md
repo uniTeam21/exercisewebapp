@@ -70,11 +70,12 @@ To make use of the website full funstionality you must create 3 different user a
 	6. ”pip install pandas” (this may take longer than the rest)
 	7. ”pip install plotly”
   
-18. After installing all the packages type “flask run” in the cmd. The server should now be up and running. To view the website copy and paste the http address into your browser as shown below.
+18. After installing all the packages type “flask run” in the cmd. The server should now be up and running. To view the website copy and paste the http address into your browser as shown below and type home. E.g. "http://127.0.0.1:5000/home".
 
 ![](teamproject21/exercisewebapp/images/installGuide12.png)
 
-19. After viewing the website you will need to close the server by pressing CTRL+C.
+
+20. After viewing the website you will need to close the server by pressing CTRL+C.
 
 ## Authors 
 
