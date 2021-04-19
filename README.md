@@ -1,7 +1,7 @@
 # Exercise Web App
 
 Exercise web application using Flask for a university team project. This project will allow the users to upload exersises with video evidence to their friend group.
-Other members of the same group will then be able to upvote or downvote if they feel the video evidence was satisfactory to what exersise they said they done.
+Other members of the same group will then be able to upvote or downvote if they feel the video evidence was satisfactory to what exersise they said they done. The majority consensus of the exercise group will decide the fate of each post, for the post to be accepted onto the leaderboard table, or rejected.
 
 ## How to use 
 
@@ -75,7 +75,9 @@ To make use of the website full funstionality you must create 3 different user a
 ![](teamproject21/exercisewebapp/images/installGuide12.png)
 
 
-20. After viewing the website you will need to close the server by pressing CTRL+C.
+19. After viewing the website you will need to close the server by pressing CTRL+C.
+
+20. Other methods of installation include installing and using PyCharm IDE, check the requirements.txt file to ensure installation of all the necessary libraries, including libraries stated before on point 17. Once all libraries are installed, run the run.py file and access "http://127.0.0.1:5000/home".
 
 ## Authors 
 
