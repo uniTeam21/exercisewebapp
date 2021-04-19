@@ -75,3 +75,11 @@ To make use of the website full funstionality you must create 3 different user a
 ![](teamproject21/exercisewebapp/images/installGuide12.png)
 
 19. After viewing the website you will need to close the server by pressing CTRL+C.
+
+## Authors 
+
+* David Webber 
+* Richard Taggart 
+* Louis Totten
+* Mark Tilbrook
+* Zain Ali
