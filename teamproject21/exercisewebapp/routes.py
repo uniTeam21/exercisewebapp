@@ -180,6 +180,7 @@ def leaderboardGroup(all_users, accepted_posts):
         df = pd.DataFrame(columns =['group_id', 'exercise_title','user_id','username', 'max_rep'])
         user_group_ids = []
         post_reps = []
+        all_postvotes = Postvote.query.all()
         for user in all_users:
             # get all current groups of a user
             if user.id == current_user.id:
@@ -221,9 +222,13 @@ def leaderboardGroup(all_users, accepted_posts):
                                 max_rep = 0
                                 for post in user.posts:
                                     if post.group_id == group.id:
+                                        for postvote in all_postvotes:
+                                            if postvote.post_id == post.id:
+                                                if postvote.decided == True and postvote.decision == True:
+                                                    if post.reps > max_rep:
+                                                        max_rep = post.reps
 
-                                        if post.reps > max_rep:
-                                            max_rep = post.reps
+                                        
                                 user_info.append(max_rep)
                                 #print(user_info)
                                 print(user_info)
